@@ -5,35 +5,41 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main_11725 {
-	static int[] parents;
+	static class Node{
+		Node parent;
+		int data;
+		@Override
+		public String toString() {
+			return "Node [data=" + data + "]";
+		}
+		public Node(int data) {
+			super();
+			this.data = data;
+		}
+	}
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		
+		StringBuilder sb = new StringBuilder();
 		int N = Integer.parseInt(br.readLine());
 		StringTokenizer st;
-		parents = new int[N];
-		Arrays.fill(parents, -1);
+		Node[] list = new Node[N+1];
+		for (int i = 0; i <= N; i++) 
+			list[i] = new Node(i);
+		list[1].parent = list[0];
 		for (int i = 1; i < N; i++) {
 			st = new StringTokenizer(br.readLine()); 
 			
-			int s = Integer.parseInt(st.nextToken())-1;
-			int e = Integer.parseInt(st.nextToken())-1;
-			union(s,e);
+			int s = Integer.parseInt(st.nextToken());
+			int e = Integer.parseInt(st.nextToken());
+			if(list[e].parent == null) list[e].parent = list[s];
+			else list[s].parent = list[e];
 		}
 		
-		for (int i = 1; i < N; i++) {
-			System.out.println(parents[i]+1);
+		for (int i = 2; i <= N; i++) {
+			if(list[i].parent == null) sb.append(1 + "\n");
+			sb.append(list[i].parent.data + "\n");
 		}
-	}
-	private static void union(int s, int e) {
-		int aRoot = find(s);
-		int bRoot = find(e);
-		if(aRoot != bRoot) 
-			parents[aRoot] = bRoot;
 		
-	}
-	private static int find(int s) {
-		if(parents[s] < 0) return s;
-		return parents[s] = find(parents[s]);
+		System.out.println(sb.toString());
 	}
 }
