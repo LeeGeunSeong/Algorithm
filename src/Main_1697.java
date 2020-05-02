@@ -39,6 +39,7 @@ public class Main_1697 {
 				}
 			}else {
 				ans = cur[1];
+				
 				break;
 			}
 		}
