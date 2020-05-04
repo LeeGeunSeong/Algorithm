@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class Main {
+public class Main_17136_색종이붙이기_이근성 {
 	static int N = 10,ans,ret;
 	static int[][] map;
 
