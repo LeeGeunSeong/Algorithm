@@ -8,37 +8,39 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main_9466 {
+	static int N,ans;
+	static int[] next;
+	static boolean[] v,check;
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int T = Integer.parseInt(br.readLine());
 		while(T-- > 0) {
-			int N = Integer.parseInt(br.readLine());
+			N = Integer.parseInt(br.readLine());
+//			N = 100000;
 			StringTokenizer st = new StringTokenizer(br.readLine());
-			int[] next = new int[N+1];
+			next = new int[N+1];
 			for (int i = 1; i <= N; i++)
 				next[i] = Integer.parseInt(st.nextToken());
-			int ans = N;
-			boolean[] v = new boolean[N+1];
+//			for (int i = 1; i <= N; i++)
+//				next[i] = i+1;
+			ans = 0;
+			check = new boolean[N+1];
+			v = new boolean[N+1];
+			for (int i = 1; i <= N; i++) 
+				solve(i);
 			
-			for (int i = 1; i <= N; i++) {
-				if(v[i]) continue;
-				List<Integer> list = new ArrayList<>();
-				int cnt = 0, cur = i;
-				while(true) {
-					cnt++;
-					list.add(cur);
-					cur = next[cur];
-					if(cur == i) {
-						ans -= cnt;
-						for (int j = 0; j < list.size(); j++) {
-							v[list.get(j)] = true;
-						}
-						break;
-					}
-					if(cur == next[cur] || v[cur]) break;
-				}
-			}
-			System.out.println(ans);
+			System.out.println(N-ans);
 		}
+	}
+	private static void solve(int i) {
+		if(check[i]) return;
+		check[i] = true;
+		if(!check[next[i]])	solve(next[i]);
+		else if(!v[next[i]]) {
+			ans++;
+			for (int j = next[i]; j != i; j = next[j]) 
+				ans++;
+		}
+		v[i] = true;
 	}
 }
