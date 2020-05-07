@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Main_17780_새로운게임_이근성 {
+public class Main_17780_새로운게임1_이근성 {
 	static int[] dx = {0,0,0,-1,1};
 	static int[] dy = {0,1,-1,0,0};
 	public static void main(String[] args) throws IOException {

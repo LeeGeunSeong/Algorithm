@@ -15,7 +15,7 @@ class Node{
 		this.height = height;
 	}
 }
-public class Main_2468_안전영역 {
+public class Main_2468_안전영역_이근성 {
 	static int N,ans,maxAns;
 	static boolean[][] visited;
 	static boolean[][] isFlood;
