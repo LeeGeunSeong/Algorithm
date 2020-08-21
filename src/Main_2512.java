@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main_2512 {
@@ -10,24 +11,19 @@ public class Main_2512 {
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		
 		int[] arr = new int[N];
-		int sum = 0, ans = 0;
-		for (int i = 0; i < N; i++) {
+		int ans = 0;
+		for (int i = 0; i < N; i++) 
 			arr[i] = Integer.parseInt(st.nextToken());
-			ans = Math.max(arr[i], ans);
-			sum += arr[i];
-		}
 		
+		Arrays.sort(arr);
 		int M = Integer.parseInt(br.readLine());
-		if(sum > M) {
-			int avg = M/N, diff = 0,cnt = 0;
-			for (int i = 0; i < N; i++)
-				if(avg < arr[i]) {
-					diff += avg;
-					cnt++;
-				}
-				else diff += arr[i];
-			ans = avg + (M-diff)/cnt;
-		}
-		System.out.println(ans);
+        for (int i = 0; i < N; i++)
+            if(arr[i] *(N-i) < M) M -= arr[i];
+            else{
+                ans = M/(N-i);
+                break;
+            }
+        if(ans == 0) ans = arr[N-1];
+        System.out.println(ans);
 	}
 }

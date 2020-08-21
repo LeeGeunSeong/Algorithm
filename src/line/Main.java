@@ -42,7 +42,7 @@ public class Main {
 				new String[] {
 						"mkdir /a",
 						"mkdir /a/b",
-						"mkdir /a/b/c",
+						"mkdir /a/b/c/d",
 						"cp /a/b /", 
 						"rm /a/b/c"});
 	}
@@ -57,15 +57,15 @@ public class Main {
 				list.add(comm[1]);
 			}else if(comm[0].equals("cp")) {
 				int size = list.size();
-				outer:
 				for (int j = 0; j < size; j++) {
 					String dir = list.get(j);
-					if(dir.length() < comm[1].length()) continue outer; 
-					for (int k = 0; k < comm[1].length(); k++) {
-						if(dir.charAt(k) != comm[1].charAt(k)) {
-						continue outer;
-						}
-					}
+					if(dir.length() < comm[1].length()
+							|| dir.indexOf(comm[1]) == -1) continue;
+//					for (int k = 0; k < comm[1].length(); k++) {
+//						if(dir.charAt(k) != comm[1].charAt(k)) {
+//							continue outer;
+//						}
+//					}
 					int idx = 0;
 					for (idx = comm[1].length()-1; idx >= 0; idx--) {
 						if(dir.charAt(idx) == '/') break;
@@ -76,15 +76,15 @@ public class Main {
 						list.add(comm[2]+dir.substring(idx));
 				}
 			}else {
-				outer:
 				for (int j = 0; j < list.size(); j++) {
 					String dir = list.get(j);
-					if(dir.length() < comm[1].length()) continue outer; 
-					for (int k = 0; k < comm[1].length(); k++) {
-						if(dir.charAt(k) != comm[1].charAt(k)) {
-							continue outer;
-						}
-					}
+					if(dir.length() < comm[1].length()
+							|| dir.indexOf(comm[1]) < 0) continue;
+//					for (int k = 0; k < comm[1].length(); k++) {
+//						if(dir.charAt(k) != comm[1].charAt(k)) {
+//							continue outer;
+//						}	
+//					}
 					list.remove(dir);
 					j--;
 				}
@@ -94,6 +94,7 @@ public class Main {
 		String[] ans = new String[list.size()];
 		for (int i = 0; i < list.size(); i++) 
 			ans[i] = list.get(i);
+		System.out.println(Arrays.toString(ans));
 		return ans;
 	}
 
@@ -226,50 +227,47 @@ public class Main {
 
 	private static int sol1(String inputString) {
 		int ans = 0;
-		Stack<Character> s1 = new Stack<>();
-		Stack<Character> s2 = new Stack<>();
-		Stack<Character> s3 = new Stack<>();
-		Stack<Character> s4 = new Stack<>();
+		Stack<Character> stack = new Stack<>();
 		for (int i = 0; i < inputString.length(); i++) {
 			char ch = inputString.charAt(i);
 			switch (ch) {
 			case '(': 
-				s1.push(ch);
+				stack.push(ch);
 				ans++;
 				break;
 			case '{':
-				s2.push(ch);
+				stack.push(ch);
 				ans++;
 				break;
 			case '[':
-				s3.push(ch);
+				stack.push(ch);
 				ans++;
 				break;
 			case '<':
-				s4.push(ch);
+				stack.push(ch);
 				ans++;
 				break;
 			case ')':
-				if(!s1.isEmpty()) s1.pop();
+				if(!stack.isEmpty() && stack.peek()=='(') stack.pop();
 				else return -1;
 				break;
 			case '}':
-				if(!s2.isEmpty()) s2.pop();
+				if(!stack.isEmpty() && stack.peek()=='{') stack.pop();
 				else return -1;
 				break;
 			case ']':
-				if(!s3.isEmpty()) s3.pop();
+				if(!stack.isEmpty() && stack.peek()=='[') stack.pop();
 				else return -1;
 				break;
 			case '>':
-				if(!s4.isEmpty()) s4.pop();
+				if(!stack.isEmpty() && stack.peek()=='<') stack.pop();
 				else return -1;
 				break;
 			default:
 				break;
 			}
 		}
-		if(s1.isEmpty() && s2.isEmpty() && s3.isEmpty() && s4.isEmpty()) return ans;
+		if(stack.isEmpty()) return ans;
 		else return -1;
 	}
 }
