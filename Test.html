@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      function solution3(weights) {
+        var answer = 0;
+        const set = new Set();
+        if (weights.length === 1) {
+          answer = 1;
+        } else {
+          const count = weights.reduce(function (el, c) {
+            if (c in el) el[c]++;
+            else el[c] = 1;
+            return el;
+          }, {});
+          for (let i = 0; i < weights.length; i++) set.add(weights[i]);
+        }
+        const setIter = set.values();
+        let tmp = setIter.next().value;
+        while (tmp !== undefined) {
+          console.log(tmp);
+          tmp = setIter.next().value;
+        }
+      }
+      solution3([2, 2, 2, 2, 3, 3, 5, 6]);
+      function solution2(arr) {
+        var answer = 0;
+        let copyArr = arr.slice(0);
+        const set = new Set();
+        for (let i = 0; i < copyArr.length; i++) {
+          let tmp = copyArr[i];
+          tmp = String(tmp);
+          const sort = (tmp) => tmp.split("").sort().join("");
+          set.add(sort(tmp));
+        }
+        console.log(set);
+        answer = set.size;
+        return answer;
+      }
+      console.log(solution2([112, 1814, 121, 1481, 1184]));
+      function solution(arr) {
+        let list = null;
+        let ans = 0;
+        while (true) {
+          {
+            ans++;
+            let tmp = arr[0];
+            let cnt = 1;
+            list = [];
+            for (let i = 1; i < arr.length; i++) {
+              {
+                if (arr[i] === tmp) {
+                  cnt++;
+                } else {
+                  list.push(cnt);
+                  cnt = 1;
+                  tmp = arr[i];
+                }
+              }
+            }
+            list.push(cnt);
+            if (list.length === 1) {
+              if (list[0] !== 1) ans++;
+              break;
+            } else arr = list.slice(0);
+          }
+        }
+        return ans;
+      }
+      console.log(solution([2]));
+    </script>
+  </head>
+  <body></body>
+</html>
