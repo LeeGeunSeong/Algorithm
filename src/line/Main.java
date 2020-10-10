@@ -2,272 +2,320 @@ package line;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Stack;
-import java.util.TreeMap;
 
 public class Main {
 	public static void main(String[] args) {
-		String input = "if (Count of eggs is 4.> {Buy milk.}";
-		System.out.println(sol1(input));
-		System.out.println(sol2("4132315142",new String[]{"3241523133","4121314445","3243523133","4433325251","2412313253"}));
-		System.out.println(sol3("111011110011111011111100011111",3));
-		String[][] snapshots = {
-				{"ACCOUNT1", "100"},
-				{"ACCOUNT2", "150"},
-				{"ACCOUNT10", "150"}
-		};
-		String[][] transactions = {
-				{"1", "SAVE", "ACCOUNT2", "100"},
-				{"2", "WITHDRAW", "ACCOUNT1", "50"},
-				{"1", "SAVE", "ACCOUNT2", "100"},
-				{"4", "SAVE", "ACCOUNT3", "500"},
-				{"3", "WITHDRAW", "ACCOUNT2", "30"}
-		};
-		System.out.println(sol4(snapshots, transactions));
-		sol5(new String[][] {
-			{"doc1", "t1", "t2", "t3"},
-			{"doc2", "t0", "t2", "t3"},
-			{"doc3", "t1", "t6", "t7"},
-			{"doc4", "t1", "t2", "t4"},
-			{"doc5", "t6", "t100", "t8"}
-		},new String[] {"t1", "t2", "t3"});
-		sol6(new String[] {"/"},
-				new String[] {
-						"mkdir /a",
-						"mkdir /a/b",
-						"mkdir /a/b/c/d",
-						"cp /a/b /", 
-						"rm /a/b/c"});
+		System.out.println(sol1(new int[][] {{1, 2}, {2, 1}, {3, 3}, {4, 5}, {5, 6}, {7, 8}}));
+		System.out.println(Arrays.toString(sol2(new int[]{11, 2, 9, 13, 24}, new int[] {9, 2, 13, 24, 11})));
+		System.out.println(Arrays.toString(sol3(73425)));
+		System.out.println(sol4(new int[][] {{0, 1, 0, 0, 0, 0}, {0, 1, 0, 1, 1, 0}, {0, 1, 0, 0, 1, 0}, {0, 1, 1, 1, 1, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 0, 1, 1, 0}}));
+		System.out.println(sol5(new int[] {10, 13, 10, 1, 2, 3, 4, 5, 6, 2}));
+		System.out.println(Arrays.toString(sol6(new String[] {"A abc 2", "B abc 1"}, new String[] {"a AB 1", "b AB 1", "c AB 1"})));
 	}
-
-	private static String[] sol6(String[] directory, String[] command) {
-		List<String> list = new ArrayList<>();
-		for (int i = 0; i < directory.length; i++) 
-			list.add(directory[i]);
-		for (int i = 0; i < command.length; i++) {
-			String[] comm = command[i].split(" ");
-			if(comm[0].equals("mkdir")) {
-				list.add(comm[1]);
-			}else if(comm[0].equals("cp")) {
-				int size = list.size();
-				for (int j = 0; j < size; j++) {
-					String dir = list.get(j);
-					if(dir.length() < comm[1].length()
-							|| dir.indexOf(comm[1]) == -1) continue;
-//					for (int k = 0; k < comm[1].length(); k++) {
-//						if(dir.charAt(k) != comm[1].charAt(k)) {
-//							continue outer;
-//						}
-//					}
-					int idx = 0;
-					for (idx = comm[1].length()-1; idx >= 0; idx--) {
-						if(dir.charAt(idx) == '/') break;
+	private static String[] sol6(String[] companies, String[] applicants) {
+		List<Character>[] company = new ArrayList[companies.length];
+		Map<Character, Integer> appl_limit = new HashMap<>();
+		for (int i = 0; i < company.length; i++) 
+			company[i] = new ArrayList<>();
+		boolean[] v = new boolean[applicants.length];
+		for (int i = 0; i < applicants.length; i++) {
+			String[] info = applicants[i].split(" ");
+			char applicant = info[0].charAt(0);
+			int limit = Integer.valueOf(info[2]);
+			appl_limit.put(applicant, limit);
+		}
+		while(true) {
+			boolean flag = false;
+			for (int i = 0; i < applicants.length; i++) {
+				String[] info = applicants[i].split(" ");
+				char applicant = info[0].charAt(0);
+				String com_rank = info[1];
+				int limit = Integer.valueOf(info[2]);
+				int count = appl_limit.get(applicant);
+				if(count == 0 || v[applicant-'a']) continue;
+				appl_limit.put(applicant, appl_limit.get(applicant)-1);
+				company[com_rank.charAt(limit-count)-'A'].add(applicant);
+				flag = true;
+			}
+			if(!flag) break;
+			for (int i = 0; i < company.length; i++) {
+				String[] info = companies[i].split(" ");
+				char com = info[0].charAt(0);
+				String app_rank = info[1];
+				int limit = Integer.valueOf(info[2]);
+				
+				while(company[com-'A'].size() > limit) {
+					List<Character> tmpList = new ArrayList<>();
+					for (int j = 0; j < app_rank.length(); j++) {
+						char appl = app_rank.charAt(j);
+						if(company[com-'A'].contains(appl)) {
+							tmpList.add(appl);
+							company[com-'A'].remove(company[com-'A'].indexOf(appl));
+						}
+						if(tmpList.size() == limit) break;
 					}
-					if(comm[2].charAt(comm[2].length()-1) == '/')
-						list.add(comm[2]+dir.substring(idx+1));
-					else 
-						list.add(comm[2]+dir.substring(idx));
-				}
-			}else {
-				for (int j = 0; j < list.size(); j++) {
-					String dir = list.get(j);
-					if(dir.length() < comm[1].length()
-							|| dir.indexOf(comm[1]) < 0) continue;
-//					for (int k = 0; k < comm[1].length(); k++) {
-//						if(dir.charAt(k) != comm[1].charAt(k)) {
-//							continue outer;
-//						}	
-//					}
-					list.remove(dir);
-					j--;
+					company[com-'A'] = new ArrayList<>();
+					company[com-'A'].addAll(tmpList);
 				}
 			}
+			Arrays.fill(v, false);
+			for (List<Character> list : company) 
+				for (Character ch : list) 
+					v[ch-'a'] = true;
 		}
-		Collections.sort(list);
-		String[] ans = new String[list.size()];
-		for (int i = 0; i < list.size(); i++) 
-			ans[i] = list.get(i);
-		System.out.println(Arrays.toString(ans));
-		return ans;
+		String[] answer = new String[companies.length];
+		for (int i = 0; i < answer.length; i++) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(Character.valueOf((char) ('A' + i)) + "_");
+			String chStr = "";
+			for (Character ch : company[i]) 
+				chStr += ch;
+			sb.append(sort(chStr));
+			
+			answer[i] = sb.toString();
+		}
+		return answer;
 	}
-
-	private static String[] sol5(String[][] dataSource, String[] tags) {
-		Map<String, String> tagMap = new HashMap<>();
-		Map<String, Integer> docsMap = new HashMap<>();
-		for (int i = 0; i < dataSource.length; i++) {
-			String[] ds = dataSource[i];
-			for (int j = 1; j < ds.length; j++) {
-				if(tagMap.get(ds[j]) != null)
-					tagMap.put(ds[j], tagMap.get(ds[j]) + ds[0] + ",");
-				else tagMap.put(ds[j], ds[0] + ",");
+	private static String sort(String str) {
+		char[] chArr = str.toCharArray();
+		char tmp;
+		for (int i = 0; i < chArr.length-1; i++) {
+			for (int j = i+1; j < chArr.length; j++) {
+				if(chArr[i] > chArr[j]) {
+					tmp = chArr[i];
+					chArr[i] = chArr[j];
+					chArr[j] = tmp;
+				}
 			}
 		}
-		for (int i = 0; i < tags.length; i++) {
-			String tag = tags[i];
-			String[] docs = tagMap.get(tag).split(",");
-			for (int j = 0; j < docs.length; j++) {
-				if(docsMap.get(docs[j]) != null)
-					docsMap.put(docs[j], docsMap.get(docs[j]) + 1);
-				else
-					docsMap.put(docs[j], 1);
-			}
-		}
-		List<String> list = new ArrayList<>();
-		list.addAll(docsMap.keySet());
-		Collections.sort(list, new Comparator<String>() {
-
-			@Override
-			public int compare(String o1, String o2) {
-				return docsMap.get(o2)-docsMap.get(o1)==0?
-					o1.compareTo(o2):docsMap.get(o2)-docsMap.get(o1);
-			}
-		});
-		String[] ans = new String[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			ans[i] = list.get(i);
-		}
-		System.out.println(Arrays.toString(ans));
-		return ans;
+		String ret = "";
+		for (int i = 0; i < chArr.length; i++) 
+			ret += chArr[i];
+		return ret;
 	}
-	private static String[][] sol4(String[][] snapshots, String[][] transactions) {
-		boolean[] v = new boolean[100000];
-		Map<String, Integer> map = new TreeMap<>();
-		for (int i = 0; i < snapshots.length; i++)
-			map.put(snapshots[i][0], Integer.parseInt(snapshots[i][1]));
-		
-		for (int i = 0; i < transactions.length; i++) {
-			String[] transaction = transactions[i];
-			int cur_num = Integer.parseInt(transaction[0]);
-			if(v[cur_num]) continue;
-			v[cur_num] = true;
-			String trans = transaction[1];
-			String acc = transaction[2];
-			if(map.get(acc)==null) {
-				map.put(acc, Integer.parseInt(transaction[3]));
-			}else {
-				if(trans.equals("SAVE")) 
-					map.put(acc, map.get(acc) + Integer.parseInt(transaction[3]));
-				else 
-					map.put(acc, map.get(acc) - Integer.parseInt(transaction[3]));
-			}
-		}
-		String[][] ans = new String[map.size()][2];
+	private static int sol5(int[] cards) {
+		int answer = 0;
 		int idx = 0;
-		for (String key : map.keySet()) {
-			ans[idx][0] = key;
-			ans[idx][1] = String.valueOf(map.get(key));
+		int[] player = new int[2]; 
+		int[] dealer = new int[2];
+		outer:
+		while(idx < cards.length) {
+			player[0] = cards[idx]>10?10:cards[idx];
 			idx++;
-		}
-		return ans;
-		
-	}
-
-	private static int sol3(String road, int n) {
-		int ans = -1;
-	      int l = 0, r = 0, len = 0;
-	      Queue<Integer> q = new LinkedList<>();
-	      
-	      while (true) {
-	         if (r == road.length()) break;
-	         
-	         else if (road.charAt(r) == '1') {
-	            len++;
-	            r++;
-	         } else {
-	            q.offer(r);
-	            len++;
-	            r++;
-	            if (q.size() > n) {
-	               l = q.poll() + 1;
-	               len = r - l;
-	            }
-	         }
-	         if (ans < len) ans = len;
-	      }
-	      return ans;
-	}
-
-	private static int sol2(String answer_sheet, String[] sheets) {
-		int sheet_len = sheets.length;
-		int possible = 0;
-		for (int i = 0; i < sheet_len; i++) {
-			String sheet1 = sheets[i];
-			for (int j = i+1; j < sheet_len; j++) {
-				String sheet2 = sheets[j];
-				int same = 0;
-				int maxlen = 0,len = 0;
-				for (int k = 0; k < answer_sheet.length(); k++) {
-					char ch = answer_sheet.charAt(k);
-					char ans1 = sheet1.charAt(k), ans2 = sheet2.charAt(k); 
-					if(ans1 == ch || ans2 == ch) { 
-						len = 0;
-						continue;
+			dealer[0] = cards[idx]>10?10:cards[idx];
+			idx++;
+			player[1] = cards[idx]>10?10:cards[idx];
+			idx++;
+			dealer[1] = cards[idx]>10?10:cards[idx];
+			idx++;
+			int sum_player = player[0] + player[1];
+			int sum_dealer = dealer[0] + dealer[1];
+			if(sum_player == 21 || (sum_player == 11 && (player[0] == 1 || player[1] == 1))) {
+				if(sum_dealer == 21) continue;
+				else answer +=3;
+			}else if(sum_player < 21) {
+				int min_dealer = Math.min(dealer[0], dealer[1]);
+				int max_dealer = Math.max(dealer[0], dealer[1]);
+				// 플레이어 카드 받기
+				if(min_dealer==1 || max_dealer >= 7) {
+					while(sum_player < 17) {
+						if((player[0] == 1 || player[1] == 1) && sum_player <= 11) {
+							sum_player += 10;
+							if(sum_player >= 17) break;
+						}
+						if(idx >= cards.length) break outer;
+						if(cards[idx] == 1 && sum_player >= 6 && sum_player <= 10) 
+							sum_player += 10;
+						sum_player += cards[idx++];
+						if(sum_player > 21) {
+							answer -= 2;
+							continue outer;
+						}
 					}
-					if(ans1 == ans2) {
-						same++;
-						len++;
-					}else {
-						maxlen = Math.max(len, maxlen);
-						len = 0;
+				}else if((dealer[0] >= 4 && dealer[0] <= 6) || (dealer[1] >= 4 && dealer[1] <= 6)) {
+					// stop
+				}else if ((dealer[0] >= 2 && dealer[0] <= 3) || (dealer[1] >= 2 && dealer[1] <= 3)) {
+					while(sum_player < 12) {
+						if((player[0] == 1 || player[1] == 1) && sum_player <= 11) {
+							sum_player += 10;
+							if(sum_player >= 12) break;
+						}
+						if(idx >= cards.length) break outer;
+						if(cards[idx] == 1 && sum_player <= 10) 
+							sum_player += 10;
+						sum_player += cards[idx++];
+						if(sum_player > 21) {
+							answer -= 2;
+							continue outer;
+						}
 					}
 				}
-				maxlen = Math.max(len, maxlen);
-				possible = Math.max(possible, same + maxlen*maxlen);
+				// 딜러 카드 받기
+				while(sum_dealer < 17) {
+					if((dealer[0] == 1 || dealer[1] == 1) && sum_dealer <= 11) {
+						sum_dealer += 10;
+						if(sum_dealer >= 17) break;
+					}
+					if(idx >= cards.length) break outer;
+					if(cards[idx] == 1 && sum_player >= 6 && sum_player <= 10) 
+						sum_dealer += 10;
+					sum_dealer += cards[idx++];
+					if(sum_dealer > 21) {
+						answer += 2;
+						continue outer;
+					}
+				}
+				if(sum_player > sum_dealer) answer += 2;
+				else if(sum_player < sum_dealer) answer -= 2;
+			}else {
+				answer -= 2;
+				continue;
 			}
 		}
-		return possible;
+		
+		
+		return answer;
+	}
+	static class Person{
+		int x,y;
+		int sec, dir;
+		public Person(int x, int y, int sec, int dir) {
+			super();
+			this.x = x;
+			this.y = y;
+			this.sec = sec;
+			this.dir = dir;
+		}
+		@Override
+		public String toString() {
+			return "Person [x=" + x + ", y=" + y + ", sec=" + sec + ", dir=" + dir + "]";
+		}
+		
+	}
+	private static int sol4(int[][] maze) {
+		int answer = 0;
+		int n = maze.length;
+		int[] dx = {1,0,-1,0};
+		int[] dy = {0,1,0,-1};
+		Queue<Person> q = new LinkedList<>();
+		if(maze[0][1] == 1) q.offer(new Person(0,0,0,0));
+		else if(maze[1][0] == 1) q.offer(new Person(0,0,0,1));
+		else {
+			q.offer(new Person(0,0,0,0));
+			q.offer(new Person(0,0,0,1));
+		}
+		
+		while(!q.isEmpty()) {
+			Person cur = q.poll();
+			if(cur.x == n-1 && cur.y == n-1) {
+				answer = cur.sec;
+				break;
+			}
+			int dir = (cur.dir+1)%4;
+			int nx = cur.x + dx[dir];
+			int ny = cur.y + dy[dir];
+			if(nx < 0 || ny < 0 || nx > n-1 || ny > n-1 || maze[nx][ny]==1) {
+				dir = cur.dir;
+				nx = cur.x + dx[dir];
+				ny = cur.y + dy[dir];
+				while(nx < 0 || ny < 0 || nx > n-1 || ny > n-1 || maze[nx][ny] == 1) {
+					dir = dir==0?3:dir-1;
+					nx = cur.x + dx[dir];
+					ny = cur.y + dy[dir];
+				}
+			}
+			q.offer(new Person(nx,ny,cur.sec+1,dir));
+		}
+		
+		return answer;
+	}
+	static int min_cnt, value;
+	private static int[] sol3(int n) {
+		int[] answer = new int[2];
+		min_cnt = 10000000;
+		sum_num(n,0);
+		answer[0] = min_cnt;
+		answer[1] = value;
+		return answer;
 	}
 
-	private static int sol1(String inputString) {
-		int ans = 0;
-		Stack<Character> stack = new Stack<>();
-		for (int i = 0; i < inputString.length(); i++) {
-			char ch = inputString.charAt(i);
-			switch (ch) {
-			case '(': 
-				stack.push(ch);
-				ans++;
-				break;
-			case '{':
-				stack.push(ch);
-				ans++;
-				break;
-			case '[':
-				stack.push(ch);
-				ans++;
-				break;
-			case '<':
-				stack.push(ch);
-				ans++;
-				break;
-			case ')':
-				if(!stack.isEmpty() && stack.peek()=='(') stack.pop();
-				else return -1;
-				break;
-			case '}':
-				if(!stack.isEmpty() && stack.peek()=='{') stack.pop();
-				else return -1;
-				break;
-			case ']':
-				if(!stack.isEmpty() && stack.peek()=='[') stack.pop();
-				else return -1;
-				break;
-			case '>':
-				if(!stack.isEmpty() && stack.peek()=='<') stack.pop();
-				else return -1;
-				break;
-			default:
-				break;
+	private static void sum_num(int n, int cnt) {
+		if(n < 10) {
+			min_cnt = Math.min(cnt, min_cnt);
+			value = n;
+			return;
+		}
+		if(cnt > min_cnt) return ;
+		String num = String.valueOf(n);
+		for (int i = 1; i < num.length(); i++) {
+			if(num.substring(i, num.length()).charAt(0) == '0') continue;
+			int tmp = Integer.valueOf(num.substring(0,i)) + Integer.valueOf(num.substring(i,num.length()));
+			sum_num(tmp, cnt+1);
+		}
+	}
+	private static int[] sol2(int[] ball, int[] order) {
+		List<Integer> ansList = new ArrayList<>();
+		Deque<Integer> deque = new LinkedList<>();
+		List<Integer> hold_list = new ArrayList<>();
+		for (int i = 0; i < ball.length; i++) 
+			deque.addFirst(ball[i]);
+		
+		for (int i = 0; i < order.length; i++) {
+			int cur_order = order[i];
+			
+			if(deque.peekFirst() == cur_order || deque.peekLast() == cur_order) {
+				if(deque.peekFirst() == cur_order) ansList.add(deque.pollFirst());
+				else ansList.add(deque.pollLast());
+				
+				for (int j = 0; j < hold_list.size(); j++) {
+					int cur_hold = hold_list.get(j);
+					
+					if(deque.peekFirst() == cur_hold) {
+						ansList.add(deque.pollFirst());
+						hold_list.remove(j);
+						j = -1;
+					}else if(deque.peekLast() == cur_hold){
+						ansList.add(deque.pollLast());
+						hold_list.remove(j);
+						j = -1;
+					}
+				}
+			}else hold_list.add(cur_order);
+		}
+		
+		int[] answer = new int[ansList.size()];
+		for (int i = 0; i < answer.length; i++) 
+			answer[i] = ansList.get(i);
+		
+		return answer;
+	}
+
+	private static int sol1(int[][] boxes) {
+		int answer = 0;
+		int box_size = boxes.length;
+		Map<Integer, Integer> num_boxes = new HashMap<>();
+		for (int i = 0; i < boxes.length; i++) {
+			for (int j = 0; j < 2; j++) {
+				if(num_boxes.get(boxes[i][j]) == null) num_boxes.put(boxes[i][j], 1);
+				else num_boxes.put(boxes[i][j], num_boxes.get(boxes[i][j])+1);
 			}
 		}
-		if(stack.isEmpty()) return ans;
-		else return -1;
+		PriorityQueue<Integer> pq = new PriorityQueue<>((o1,o2)->(o2-o1));
+		for (int num_box : num_boxes.values()) 
+			pq.offer(num_box);
+		while(box_size-- > 0) {
+			int cur = pq.poll();
+			if(cur==1) answer++;
+			else if(cur==2) continue;
+			else pq.offer(cur-2);
+		}
+		return answer;
 	}
 }
